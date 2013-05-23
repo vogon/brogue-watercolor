@@ -73,8 +73,10 @@ int main(int argc, char *argv[])
 {
 #ifdef BROGUE_TCOD
 		currentConsole = tcodConsole;
-#else
+#elif defined(BROGUE_CURSES)
 		currentConsole = cursesConsole;
+#elif defined(BROGUE_SDL)
+		currentConsole = sdlConsole;
 #endif
 
 	rogue.nextGame = NG_NOTHING;

@@ -1,7 +1,7 @@
 LIBTCODDIR=libtcod
 SDLDIR=SDL
 BINDIR=bin
-CFLAGS=$(FLAGS) -I$(LIBTCODDIR)/include -I$(SDLDIR)/include -IBrogueCode -IPlatformCode -DBROGUE_TCOD -Wall
+CFLAGS=$(FLAGS) -I$(LIBTCODDIR)/include -I$(SDLDIR)/include -IBrogueCode -IPlatformCode -DBROGUE_SDL -Wall
 
 OBJS=BrogueCode/Architect.o \
 	BrogueCode/Combat.o \
@@ -20,7 +20,9 @@ OBJS=BrogueCode/Architect.o \
 	BrogueCode/Recordings.o \
 	PlatformCode/main.o \
 	PlatformCode/platformdependent.o \
-	PlatformCode/tcod-platform.o 
+	PlatformCode/curses-platform.o \
+	PlatformCode/tcod-platform.o \
+	PlatformCode/sdl-platform.o
 
 %.o: %.c
 	gcc $(CFLAGS) -O2 -s -o $@ -c $< 
