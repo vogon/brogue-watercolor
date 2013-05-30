@@ -38,4 +38,4 @@ $(BINDIR)/brogue-icon.o: brogue-icon.ico icon.rc
 	windres icon.rc $(BINDIR)/brogue-icon.o
 
 $(BINDIR)/brogue: ${OBJS} brogue-icon.o 
-	g++ -o $(BINDIR)/brogue.exe ${OBJS} brogue-icon.o -L. -ltcod-mingw -lSDL -L$(BINDIR)/ -static-libgcc -static-libstdc++ -mwindows
+	g++ -o $(BINDIR)/brogue.exe ${OBJS} brogue-icon.o -L. -ltcod-mingw-debug -lSDL -L$(BINDIR)/ -static-libgcc -static-libstdc++ -mwindows -ggdb

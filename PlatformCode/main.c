@@ -72,12 +72,14 @@ static void badArgument(const char *arg) {
 int main(int argc, char *argv[])
 {
 #ifdef BROGUE_TCOD
-		currentConsole = tcodConsole;
+	currentConsole = tcodConsole;
 #elif defined(BROGUE_CURSES)
-		currentConsole = cursesConsole;
+	currentConsole = cursesConsole;
 #elif defined(BROGUE_SDL)
-		currentConsole = sdlConsole;
+	currentConsole = sdlConsole;
 #endif
+
+	printf("main()\n");
 
 	rogue.nextGame = NG_NOTHING;
 	rogue.nextGamePath[0] = '\0';
