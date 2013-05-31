@@ -5,15 +5,25 @@
 
 #include "platform.h"
 
+SDL_Surface *renderSurface;
+
 static void gameLoop()
 {
+#ifdef WIN32
+	// we're running in the Windows subsystem, so open a console the hard way for debugging
 	AllocConsole();
 	freopen("CONOUT$", "wb", stdout);
+#endif /* WIN32 */
 
 	printf("STUB: SDL gameLoop\n");
 
-	if (SDL_Init(SDL_INIT_VIDEO) != 0) {
+	if (SDL_Init(SDL_INIT_TIMER | SDL_INIT_VIDEO) != 0) {
 		printf("Couldn't init SDL.\n");
+		return;
+	}
+
+	if ((renderSurface = SDL_SetVideoMode(800, 600, 32, SDL_DOUBLEBUF)) == NULL) {
+		printf("Couldn't create video surface.\n");
 		return;
 	}
 
@@ -25,8 +35,13 @@ static void gameLoop()
 
 static boolean sdl_pauseForMilliseconds(short ms)
 {
-	printf("STUB: SDL pauseForMilliseconds(%d)\n", ms);
+	// printf("STUB: SDL pauseForMilliseconds(%d)\n", ms);
+	SDL_Flip(renderSurface);
+	SDL_Delay(ms);
+
 	return false;
+	// return SDL_PeepEvents(NULL, 1, SDL_PEEKEVENT, 
+	// 	SDL_KEYDOWN | SDL_KEYUP | SDL_MOUSEMOTION | SDL_MOUSEBUTTONDOWN | SDL_MOUSEBUTTONUP);
 }
 
 static void sdl_nextKeyOrMouseEvent(rogueEvent *returnEvent, boolean textInput, boolean colorsDance)
@@ -39,8 +54,17 @@ static void sdl_plotChar(uchar inputChar,
 			  short foreRed, short foreGreen, short foreBlue,
 			  short backRed, short backGreen, short backBlue)
 {
-	printf("STUB: SDL plotChar ch=%c, (%d, %d), fg (%d, %d, %d), bg (%d, %d, %d)\n",
-		   inputChar, xLoc, yLoc, foreRed, foreGreen, foreBlue, backRed, backGreen, backBlue);
+	// printf("STUB: SDL plotChar ch=%c, (%d, %d), fg (%d, %d, %d), bg (%d, %d, %d)\n",
+	// 	   inputChar, xLoc, yLoc, foreRed, foreGreen, foreBlue, backRed, backGreen, backBlue);
+
+	// stub: just render the color rn
+	SDL_Rect rect;
+	rect.x = 8 * xLoc;
+	rect.y = 8 * yLoc;
+	rect.w = rect.h = 8;
+
+	Uint32 col = SDL_MapRGB(renderSurface->format, backRed, backGreen, backBlue);
+	SDL_FillRect(renderSurface, &rect, col);
 }
 
 static void sdl_remap(const char *input, const char *output)
