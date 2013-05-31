@@ -1,7 +1,8 @@
 #ifdef BROGUE_SDL
 #include <stdlib.h>
 #include <windows.h>
-#include <SDL/SDL.h>
+#include <SDL.h>
+#include <SDL_ttf.h>
 
 #include "platform.h"
 

@@ -1,7 +1,8 @@
 LIBTCODDIR=libtcod
 SDLDIR=SDL
+SDLTTFDIR=SDL_ttf
 BINDIR=bin
-CFLAGS=$(FLAGS) -I$(LIBTCODDIR)/include -I$(SDLDIR)/include -IBrogueCode -IPlatformCode -DBROGUE_SDL -Wall
+CFLAGS=$(FLAGS) -I$(LIBTCODDIR)/include -I$(SDLDIR)/include/SDL -I$(SDLTTFDIR)/include -IBrogueCode -IPlatformCode -DBROGUE_SDL -Wall
 
 OBJS=BrogueCode/Architect.o \
 	BrogueCode/Combat.o \
@@ -38,4 +39,4 @@ $(BINDIR)/brogue-icon.o: brogue-icon.ico icon.rc
 	windres icon.rc $(BINDIR)/brogue-icon.o
 
 $(BINDIR)/brogue: ${OBJS} brogue-icon.o 
-	g++ -o $(BINDIR)/brogue.exe ${OBJS} brogue-icon.o -L. -ltcod-mingw-debug -lSDL -L$(BINDIR)/ -static-libgcc -static-libstdc++ -mwindows -ggdb
+	g++ -o $(BINDIR)/brogue.exe ${OBJS} brogue-icon.o -L. -ltcod-mingw-debug -lSDL_ttf -lSDL -L$(BINDIR)/ -static-libgcc -static-libstdc++ -mwindows -ggdb
