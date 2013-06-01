@@ -21,3 +21,7 @@ licensed under the GNU LGPL v2.  (currently, it uses unmodified SDL 1.2.15 for M
 
 this repo contains binary and source components of libtcod (http://doryen.eptalys.net/libtcod/),
 licensed under the BSD license.  (currently, it uses unmodified libtcod 1.5.1 for MinGW.)
+
+this repo contains binary and source components of SDL_ttf (http://libsdl.org/projects/SDL_ttf), licensed as described in SDL_ttf/COPYING.txt.  (currently, it uses unmodified SDL_ttf 2.0.11.)  SDL_ttf contains binary components of FreeType and zlib, licensed as described in bin/LICENSE.freetype.txt and bin/LICENSE.zlib.txt.
+
+this repo contains the TrueType version of Adobe's Source Code Pro Regular (http://blogs.adobe.com/typblography/2012/09/source-code-pro.html), licensed under the SIL Open Font License 1.1 (http://scripts.sil.org/cms/scripts/page.php?item_id=OFL_web).
