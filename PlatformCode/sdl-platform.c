@@ -8,6 +8,9 @@
 
 SDL_Surface *renderSurface;
 
+#define CHAR_W 8
+#define CHAR_H 16
+
 static void gameLoop()
 {
 #ifdef WIN32
@@ -23,7 +26,12 @@ static void gameLoop()
 		return;
 	}
 
-	if ((renderSurface = SDL_SetVideoMode(800, 600, 32, SDL_DOUBLEBUF)) == NULL) {
+	if (TTF_Init() != 0) {
+		printf("Couldn't init SDL_ttf.\n");
+		return;
+	}
+
+	if ((renderSurface = SDL_SetVideoMode(COLS * CHAR_W, ROWS * CHAR_H, 32, SDL_DOUBLEBUF)) == NULL) {
 		printf("Couldn't create video surface.\n");
 		return;
 	}
@@ -60,9 +68,10 @@ static void sdl_plotChar(uchar inputChar,
 
 	// stub: just render the color rn
 	SDL_Rect rect;
-	rect.x = 8 * xLoc;
-	rect.y = 8 * yLoc;
-	rect.w = rect.h = 8;
+	rect.x = CHAR_W * xLoc;
+	rect.y = CHAR_H * yLoc;
+	rect.w = CHAR_W;
+	rect.h = CHAR_H;
 
 	Uint32 col = SDL_MapRGB(renderSurface->format, backRed, backGreen, backBlue);
 	SDL_FillRect(renderSurface, &rect, col);
