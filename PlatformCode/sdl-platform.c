@@ -84,8 +84,18 @@ static void sdl_remap(const char *input, const char *output)
 
 static boolean sdl_modifierHeld(int modifier)
 {
-	printf("STUB: SDL modifierHeld(%d)", modifier);
-	return false;
+	SDL_PumpEvents();
+
+	SDLMod modifiers = SDL_GetModState();
+	boolean state = 0;
+
+	switch (modifier) {
+		case 0: state = modifiers & KMOD_SHIFT;
+		case 1: state = modifiers & KMOD_CTRL;
+		default: state = 0;
+	}
+
+	printf("STUB: SDL modifierHeld(%d) -> %d\n", modifier, state);
 }
 
 // struct brogueConsole {
