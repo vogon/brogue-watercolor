@@ -22,7 +22,7 @@ static void gameLoop()
 
 	printf("STUB: SDL gameLoop\n");
 
-	if (SDL_Init(SDL_INIT_TIMER | SDL_INIT_VIDEO) != 0) {
+	if (SDL_Init(SDL_INIT_EVERYTHING) != 0) {
 		printf("Couldn't init SDL.\n");
 		return;
 	}
@@ -113,18 +113,26 @@ static void sdl_remap(const char *input, const char *output)
 
 static boolean sdl_modifierHeld(int modifier)
 {
-	SDL_PumpEvents();
+	// SDL_PumpEvents();
 
-	SDLMod modifiers = SDL_GetModState();
+	SDLMod modState = SDL_GetModState();
 	boolean state = 0;
 
 	switch (modifier) {
-		case 0: state = modifiers & KMOD_SHIFT;
-		case 1: state = modifiers & KMOD_CTRL;
-		default: state = 0;
+	case 0: 
+		state = modState & KMOD_SHIFT; 
+		break;
+	case 1: 
+		state = modState & KMOD_CTRL; 
+		break;
+	default: 
+		state = 0;
+		break;
 	}
 
-	printf("STUB: SDL modifierHeld(%d) -> %d\n", modifier, state);
+	// printf("STUB: SDL modifierHeld(%d) -> %d (%d)\n", modifier, state, modState);
+
+	return state;
 }
 
 // struct brogueConsole {
