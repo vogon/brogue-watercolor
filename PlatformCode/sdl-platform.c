@@ -7,6 +7,7 @@
 #include "platform.h"
 
 SDL_Surface *renderSurface;
+TTF_Font *face;
 
 #define CHAR_W 8
 #define CHAR_H 16
@@ -28,6 +29,11 @@ static void gameLoop()
 
 	if (TTF_Init() != 0) {
 		printf("Couldn't init SDL_ttf.\n");
+		return;
+	}
+
+	if ((face = TTF_OpenFont("bin/SourceCodePro-Regular.ttf", 12)) == NULL) {
+		printf("Couldn't load font face.\n");
 		return;
 	}
 
@@ -66,15 +72,38 @@ static void sdl_plotChar(uchar inputChar,
 	// printf("STUB: SDL plotChar ch=%c, (%d, %d), fg (%d, %d, %d), bg (%d, %d, %d)\n",
 	// 	   inputChar, xLoc, yLoc, foreRed, foreGreen, foreBlue, backRed, backGreen, backBlue);
 
-	// stub: just render the color rn
-	SDL_Rect rect;
-	rect.x = CHAR_W * xLoc;
-	rect.y = CHAR_H * yLoc;
-	rect.w = CHAR_W;
-	rect.h = CHAR_H;
+	// render bg
+	SDL_Rect bgRect;
+	bgRect.x = CHAR_W * xLoc;
+	bgRect.y = CHAR_H * yLoc;
+	bgRect.w = CHAR_W;
+	bgRect.h = CHAR_H;
 
 	Uint32 col = SDL_MapRGB(renderSurface->format, backRed, backGreen, backBlue);
-	SDL_FillRect(renderSurface, &rect, col);
+	SDL_FillRect(renderSurface, &bgRect, col);
+
+	// render character
+	SDL_Color color;
+	color.r = foreRed;
+	color.g = foreGreen;
+	color.b = foreBlue;
+
+	SDL_Surface *tempSurface = TTF_RenderGlyph_Blended(face, inputChar, color);
+
+	SDL_Rect fgRect;
+
+	int ascent = TTF_FontAscent(face);
+	int maxY = 0;
+	TTF_GlyphMetrics(face, inputChar, NULL, NULL, NULL, &maxY, NULL);
+
+	fgRect.x = CHAR_W * xLoc;
+	fgRect.y = CHAR_H * yLoc + (ascent - maxY);
+	fgRect.w = CHAR_W;
+	fgRect.h = CHAR_H;
+
+	SDL_BlitSurface(tempSurface, NULL, renderSurface, &fgRect);
+
+	SDL_FreeSurface(tempSurface);
 }
 
 static void sdl_remap(const char *input, const char *output)
