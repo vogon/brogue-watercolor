@@ -26,7 +26,7 @@ OBJS=BrogueCode/Architect.o \
 	PlatformCode/sdl-platform.o
 
 %.o: %.c
-	gcc $(CFLAGS) -O2 -s -o $@ -c $< 
+	gcc $(CFLAGS) -ggdb -s -o $@ -c $< 
 
 .PHONY: all clean
 

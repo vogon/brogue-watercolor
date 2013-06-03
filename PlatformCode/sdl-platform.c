@@ -6,6 +6,8 @@
 
 #include "platform.h"
 
+extern playerCharacter rogue;
+
 SDL_Surface *renderSurface;
 TTF_Font *face;
 
@@ -44,8 +46,6 @@ static void gameLoop()
 
 	/* go off into game loop */
 	rogueMain();
-
-	Sleep(10000);
 }
 
 static boolean sdl_pauseForMilliseconds(short ms)
@@ -54,14 +54,113 @@ static boolean sdl_pauseForMilliseconds(short ms)
 	SDL_Flip(renderSurface);
 	SDL_Delay(ms);
 
-	return false;
-	// return SDL_PeepEvents(NULL, 1, SDL_PEEKEVENT, 
-	// 	SDL_KEYDOWN | SDL_KEYUP | SDL_MOUSEMOTION | SDL_MOUSEBUTTONDOWN | SDL_MOUSEBUTTONUP);
+	SDL_Event unused;
+
+	return SDL_PeepEvents(&unused, 1, SDL_PEEKEVENT, 
+	 	SDL_KEYDOWN | SDL_KEYUP | SDL_MOUSEMOTION | SDL_MOUSEBUTTONDOWN | SDL_MOUSEBUTTONUP);
 }
+
+#define PAUSE_BETWEEN_EVENT_POLLING 36
+
+static void xy2cxcy(int x, int y, int *cx, int *cy) {
+	printf("at %d, %d\n", x, y);
+	if (cx != NULL) *cx = x / CHAR_W;
+	if (cy != NULL) *cy = y / CHAR_H;
+}
+
+int last_mouse_cx = -1, last_mouse_cy = -1;
 
 static void sdl_nextKeyOrMouseEvent(rogueEvent *returnEvent, boolean textInput, boolean colorsDance)
 {
 	printf("STUB: SDL nextKeyOrMouseEvent(0x%x, %d, %d)\n", returnEvent, textInput, colorsDance);
+
+	if (noMenu && rogue.nextGame == NG_NOTHING) rogue.nextGame = NG_NEW_GAME;
+
+	while (true) {
+		printf("nextKeyOrMouseEvent loop\n");
+
+		Uint32 theTime = SDL_GetTicks();
+		int cx, cy;
+				
+		// if (!(serverMode || (SDL_GetAppState() & SDL_APPACTIVE))) {
+		// 	SDL_Delay(100);
+		// } else {
+		// 	if (colorsDance) {
+		// 		shuffleTerrainColors(3, true);
+		// 		commitDraws();
+		// 	}
+		// }
+
+		SDL_Event evt;
+		if (1 == SDL_PollEvent(&evt)) {
+			switch (evt.type) {
+			case SDL_QUIT:
+				rogue.gameHasEnded = true;
+				rogue.nextGame = NG_QUIT;
+				returnEvent->eventType = KEYSTROKE;
+				returnEvent->param1 = ESCAPE_KEY;
+				return;
+
+			case SDL_MOUSEBUTTONUP:
+				if (evt.button.button == SDL_BUTTON_LEFT) {
+					printf("lmb up\n");
+					returnEvent->eventType = MOUSE_UP;
+				} else if (evt.button.button == SDL_BUTTON_RIGHT) {
+					printf("rmb up\n");
+					returnEvent->eventType = RIGHT_MOUSE_UP;
+				} else {
+					// ignore middle mouse button events
+					continue;
+				}
+
+				xy2cxcy(evt.button.x, evt.button.y, 
+					&(returnEvent->param1), &(returnEvent->param2));
+				return;
+
+			case SDL_MOUSEBUTTONDOWN:
+				if (evt.button.button == SDL_BUTTON_LEFT) {
+					printf("lmb down\n");
+					returnEvent->eventType = MOUSE_DOWN;
+				} else if (evt.button.button == SDL_BUTTON_RIGHT) {
+					printf("rmb down\n");
+					returnEvent->eventType = RIGHT_MOUSE_DOWN;
+				} else {
+					// ignore middle mouse button events
+					continue;
+				}
+
+				xy2cxcy(evt.button.x, evt.button.y, 
+					&(returnEvent->param1), &(returnEvent->param2));
+				return;
+
+			case SDL_MOUSEMOTION:
+				xy2cxcy(evt.motion.x, evt.motion.y, &cx, &cy);
+
+				if (cx != last_mouse_cx || cy != last_mouse_cy) {
+					// mouse has changed cells
+					returnEvent->eventType = MOUSE_ENTERED_CELL;
+					returnEvent->param1 = cx;
+					returnEvent->param2 = cy;
+					last_mouse_cx = cx;
+					last_mouse_cy = cy;
+					return;
+				} else {
+					// mouse hasn't changed cells
+					continue;
+				}
+
+			default:
+				printf("dropped event %d on the floor\n", evt.type);
+				continue;
+			}
+		}
+
+		// Sint32 waitTime = PAUSE_BETWEEN_EVENT_POLLING + theTime - SDL_GetTicks();
+
+		// if (waitTime > 0 && waitTime <= PAUSE_BETWEEN_EVENT_POLLING) {
+		// 	SDL_Delay(waitTime);
+		// }
+	}
 }
 
 static void sdl_plotChar(uchar inputChar,
@@ -108,7 +207,7 @@ static void sdl_plotChar(uchar inputChar,
 
 static void sdl_remap(const char *input, const char *output)
 {
-	printf("STUB: SDL remap \"%s\" -> \"%s\"", input, output);
+	printf("STUB: SDL remap \"%s\" -> \"%s\"\n", input, output);
 }
 
 static boolean sdl_modifierHeld(int modifier)

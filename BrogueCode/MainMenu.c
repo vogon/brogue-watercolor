@@ -342,6 +342,8 @@ void titleMenu() {
     rogue.creaturesWillFlashThisTurn = false; // total unconscionable hack
 	
 	do {
+		printf("TRACE: titleMenu loop\n");
+
 		if (!controlKeyWasDown && controlKeyIsDown()) {
 			strcpy(state.buttons[0].text, customNewGameText);
 			drawButtonsInState(&state);

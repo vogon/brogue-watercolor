@@ -2000,6 +2000,8 @@ boolean pauseBrogue(short milliseconds) {
 }
 
 void nextBrogueEvent(rogueEvent *returnEvent, boolean textInput, boolean colorsDance, boolean realInputEvenInPlayback) {
+	printf("TRACE: nextBrogueEvent(0x%x, %d, %d, %d)\n", returnEvent, textInput, colorsDance, realInputEvenInPlayback);
+
 	rogueEvent recordingInput;
 	boolean repeatAgain;
 	short pauseDuration;
@@ -3026,14 +3028,16 @@ void refreshSideBar(short focusX, short focusY, boolean focusedEntityMustGoFirst
 	// Non-focused monsters.
 	do {
 		shortestDistance = 10000;
-		for (monst = monsters->nextCreature; monst != NULL; monst = monst->nextCreature) {
-			if ((canSeeMonster(monst) || rogue.playbackOmniscience)
-				&& !addedEntity[monst->xLoc][monst->yLoc]
-                && !(monst->info.flags & MONST_NOT_LISTED_IN_SIDEBAR)
-				&& (px - monst->xLoc) * (px - monst->xLoc) + (py - monst->yLoc) * (py - monst->yLoc) < shortestDistance) {
-				
-				shortestDistance = (px - monst->xLoc) * (px - monst->xLoc) + (py - monst->yLoc) * (py - monst->yLoc);
-				closestMonst = monst;
+		if (monsters != NULL) {
+			for (monst = monsters->nextCreature; monst != NULL; monst = monst->nextCreature) {
+				if ((canSeeMonster(monst) || rogue.playbackOmniscience)
+					&& !addedEntity[monst->xLoc][monst->yLoc]
+	                && !(monst->info.flags & MONST_NOT_LISTED_IN_SIDEBAR)
+					&& (px - monst->xLoc) * (px - monst->xLoc) + (py - monst->yLoc) * (py - monst->yLoc) < shortestDistance) {
+					
+					shortestDistance = (px - monst->xLoc) * (px - monst->xLoc) + (py - monst->yLoc) * (py - monst->yLoc);
+					closestMonst = monst;
+				}
 			}
 		}
 		if (shortestDistance < 10000) {
@@ -3047,13 +3051,15 @@ void refreshSideBar(short focusX, short focusY, boolean focusedEntityMustGoFirst
 	// Non-focused items.
 	do {
 		shortestDistance = 10000;
-		for (theItem = floorItems->nextItem; theItem != NULL; theItem = theItem->nextItem) {
-			if ((playerCanSeeOrSense(theItem->xLoc, theItem->yLoc) || rogue.playbackOmniscience)
-				&& !addedEntity[theItem->xLoc][theItem->yLoc]
-				&& (px - theItem->xLoc) * (px - theItem->xLoc) + (py - theItem->yLoc) * (py - theItem->yLoc) < shortestDistance) {
-				
-				shortestDistance = (px - theItem->xLoc) * (px - theItem->xLoc) + (py - theItem->yLoc) * (py - theItem->yLoc);
-				closestItem = theItem;
+		if (floorItems != NULL) {
+			for (theItem = floorItems->nextItem; theItem != NULL; theItem = theItem->nextItem) {
+				if ((playerCanSeeOrSense(theItem->xLoc, theItem->yLoc) || rogue.playbackOmniscience)
+					&& !addedEntity[theItem->xLoc][theItem->yLoc]
+					&& (px - theItem->xLoc) * (px - theItem->xLoc) + (py - theItem->yLoc) * (py - theItem->yLoc) < shortestDistance) {
+					
+					shortestDistance = (px - theItem->xLoc) * (px - theItem->xLoc) + (py - theItem->yLoc) * (py - theItem->yLoc);
+					closestItem = theItem;
+				}
 			}
 		}
 		if (shortestDistance < 10000) {
