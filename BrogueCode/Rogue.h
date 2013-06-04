@@ -288,6 +288,7 @@
 #endif
 
 enum eventTypes {
+	NOP,
 	KEYSTROKE,
 	MOUSE_UP,
 	MOUSE_DOWN,

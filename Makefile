@@ -2,7 +2,9 @@ LIBTCODDIR=libtcod
 SDLDIR=SDL
 SDLTTFDIR=SDL_ttf
 BINDIR=bin
-CFLAGS=$(FLAGS) -I$(LIBTCODDIR)/include -I$(SDLDIR)/include/SDL -I$(SDLTTFDIR)/include -IBrogueCode -IPlatformCode -DBROGUE_SDL -Wall
+CFLAGS=$(FLAGS) -I$(LIBTCODDIR)/include -I$(SDLDIR)/include \
+	-I$(SDLDIR)/include/SDL -I$(SDLTTFDIR)/include -IBrogueCode \
+	-IPlatformCode -DBROGUE_SDL -Wall
 
 OBJS=BrogueCode/Architect.o \
 	BrogueCode/Combat.o \

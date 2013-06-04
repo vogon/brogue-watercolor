@@ -14,6 +14,8 @@ TTF_Font *face;
 #define CHAR_W 8
 #define CHAR_H 16
 
+static int mousemotion_despam(const SDL_Event *evt);
+
 static void gameLoop()
 {
 #ifdef WIN32
@@ -44,6 +46,8 @@ static void gameLoop()
 		return;
 	}
 
+	SDL_SetEventFilter(mousemotion_despam);
+
 	/* go off into game loop */
 	rogueMain();
 }
@@ -56,16 +60,39 @@ static boolean sdl_pauseForMilliseconds(short ms)
 
 	SDL_Event unused;
 
-	return SDL_PeepEvents(&unused, 1, SDL_PEEKEVENT, 
-	 	SDL_KEYDOWN | SDL_KEYUP | SDL_MOUSEMOTION | SDL_MOUSEBUTTONDOWN | SDL_MOUSEBUTTONUP);
+	boolean rv = SDL_PollEvent(NULL);
+
+	printf("TRACE: pauseForMilliseconds returning %d\n", rv);
+	return rv;
 }
 
 #define PAUSE_BETWEEN_EVENT_POLLING 36
 
 static void xy2cxcy(int x, int y, int *cx, int *cy) {
-	printf("at %d, %d\n", x, y);
+	// printf("at %d, %d\n", x, y);
 	if (cx != NULL) *cx = x / CHAR_W;
 	if (cy != NULL) *cy = y / CHAR_H;
+}
+
+int last_mousemotion_cx = -1, last_mousemotion_cy = -1;
+
+static int mousemotion_despam(const SDL_Event *evt) {
+	int enq = 1;
+
+	if (evt->type == SDL_MOUSEMOTION) {
+		int cx, cy;
+		xy2cxcy(evt->motion.x, evt->motion.y, &cx, &cy);
+
+		if (cx != last_mousemotion_cx || cy != last_mousemotion_cy) {
+			last_mousemotion_cx = cx;
+			last_mousemotion_cy = cy;
+		} else {
+			// mousemotion and the mouse hasn't moved over a cell boundary
+			enq = 0;
+		}
+	}
+
+	return enq;
 }
 
 int last_mouse_cx = -1, last_mouse_cy = -1;
@@ -74,10 +101,12 @@ static void sdl_nextKeyOrMouseEvent(rogueEvent *returnEvent, boolean textInput, 
 {
 	printf("STUB: SDL nextKeyOrMouseEvent(0x%x, %d, %d)\n", returnEvent, textInput, colorsDance);
 
+	SDL_Flip(renderSurface);
+
 	if (noMenu && rogue.nextGame == NG_NOTHING) rogue.nextGame = NG_NEW_GAME;
 
 	while (true) {
-		printf("nextKeyOrMouseEvent loop\n");
+		// printf("nextKeyOrMouseEvent loop\n");
 
 		Uint32 theTime = SDL_GetTicks();
 		int cx, cy;
@@ -110,7 +139,8 @@ static void sdl_nextKeyOrMouseEvent(rogueEvent *returnEvent, boolean textInput, 
 					returnEvent->eventType = RIGHT_MOUSE_UP;
 				} else {
 					// ignore middle mouse button events
-					continue;
+					returnEvent->eventType = NOP;
+					return;
 				}
 
 				xy2cxcy(evt.button.x, evt.button.y, 
@@ -126,7 +156,8 @@ static void sdl_nextKeyOrMouseEvent(rogueEvent *returnEvent, boolean textInput, 
 					returnEvent->eventType = RIGHT_MOUSE_DOWN;
 				} else {
 					// ignore middle mouse button events
-					continue;
+					returnEvent->eventType = NOP;
+					return;
 				}
 
 				xy2cxcy(evt.button.x, evt.button.y, 
@@ -145,21 +176,28 @@ static void sdl_nextKeyOrMouseEvent(rogueEvent *returnEvent, boolean textInput, 
 					last_mouse_cy = cy;
 					return;
 				} else {
+					printf("should be despammed!\n");
 					// mouse hasn't changed cells
-					continue;
+					// continue;
+					returnEvent->eventType = NOP;
+					return;
 				}
 
 			default:
 				printf("dropped event %d on the floor\n", evt.type);
-				continue;
+				// continue;
+				returnEvent->eventType = NOP;
+				return;
 			}
+		} else { 
+			continue;
 		}
 
-		// Sint32 waitTime = PAUSE_BETWEEN_EVENT_POLLING + theTime - SDL_GetTicks();
+		Sint32 waitTime = PAUSE_BETWEEN_EVENT_POLLING + theTime - SDL_GetTicks();
 
-		// if (waitTime > 0 && waitTime <= PAUSE_BETWEEN_EVENT_POLLING) {
-		// 	SDL_Delay(waitTime);
-		// }
+		if (waitTime > 0) {
+			SDL_Delay(waitTime);
+		}
 	}
 }
 

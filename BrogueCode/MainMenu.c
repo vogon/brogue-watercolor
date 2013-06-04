@@ -342,7 +342,7 @@ void titleMenu() {
     rogue.creaturesWillFlashThisTurn = false; // total unconscionable hack
 	
 	do {
-		printf("TRACE: titleMenu loop\n");
+		// printf("TRACE: titleMenu loop\n");
 
 		if (!controlKeyWasDown && controlKeyIsDown()) {
 			strcpy(state.buttons[0].text, customNewGameText);
@@ -375,6 +375,9 @@ void titleMenu() {
 		overlayDisplayBuffer(state.rbuf, NULL);
 		
 	} while (button == -1 && rogue.nextGame == NG_NOTHING);
+
+	printf("button is %d, nextGame is %d\n", button, rogue.nextGame);
+
 	drawMenuFlames(flames, mask);
 	if (button != -1) {
 		rogue.nextGame = buttonCommands[button];
